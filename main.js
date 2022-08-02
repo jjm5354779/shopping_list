@@ -1,66 +1,61 @@
-const add_item = document.querySelector('#add_item');
+const items = document.querySelector('.items');
+const input = document.querySelector('.footer__input');
+const addBtn = document.querySelector('.footer__button');
 
-const add_button = document.querySelector('.add');
-const body = document.querySelector('.list_box');
+function onAdd() {
+	// 1. 사용자가 입력한 텍스트를 받아와야한다.
+	const text = input.value;
 
-const item_arr = [];
-add_button.addEventListener('click', () => {
-	let add_value = add_item.value;
-	console.log(add_value);
+	if (text === '') {
+		input.focus();
+		return;
+	}
 
-	let item_id = item_arr.length + 1;
-	item_arr.push({ id: item_id, item: add_value });
+	// 2. 새로운 아이템을 만듬 ( 텍스트 + 삭제버튼 )
+	const item = createItem(text);
 
-	let h2 = document.createElement('h2');
-	h2.setAttribute('class', 'item');
-	h2.setAttribute('id', 'item');
-	h2.textContent = add_value;
-	body.appendChild(h2);
+	// 3. items 컨테이너안에 새로 만든 아이템을 추가한다.
+	items.appendChild(item);
 
-	let del_button = document.createElement('button');
-	del_button.setAttribute('class', 'deleteItem');
-	del_button.setAttribute('id', item_id);
-	del_button.textContent = '🗑';
-	body.appendChild(del_button);
-	let ptag = document.createElement('p');
-	body.appendChild(ptag);
+	// 4. 새로 추가된 아이템으로 스크롤링
+	item.scrollIntoView({ block: 'center' });
 
-	let data = '';
-	item_arr.forEach((i) => {
-		data += `<h2 class='item' id='${i.id}'>${i.item}</h2>`;
-		data += `<button class='deleteItem' id=${i.id}>🗑</button>`;
-		data += '<br>';
+	// 5. 인풋을 초기화한다.
+	input.value = '';
+	input.focus(); // 다시 입력할 수 있게 focus를 해줘야함. 안하면 추가 입력이 안됨
+}
+
+function createItem(text) {
+	const itemRow = document.createElement('li');
+	itemRow.setAttribute('class', 'item__row');
+
+	const item = document.createElement('div');
+	item.setAttribute('class', 'item');
+
+	const name = document.createElement('span');
+	name.setAttribute('class', 'item__name');
+	name.innerText = text;
+
+	const deleteBtn = document.createElement('button');
+	deleteBtn.setAttribute('class', 'item__delete');
+	deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+	deleteBtn.addEventListener('click', () => {
+		items.removeChild(itemRow);
 	});
-	body.innerHTML = `
-		${data}
-	`;
-	// const h2 = document.createElement('h2');
-	// h2.setAttribute('class', 'title'); // <h2 class="title"></h2>
-	// h2.textContent = 'This is a title'; // <h2 class="title">This is a title</h2>
-	// body.innerHTML = `
-	// 	<h1>${add_value}</h1>
-	// 	<button class='delete_item' id='1'>🗑</button>
-	// 	`;
-});
+	const itemDivider = document.createElement('div');
+	itemDivider.setAttribute('class', 'item__divider');
 
-document.addEventListener('DOMLinkAdded', (e) => {
-	const delete_button = document.querySelector('.deleteItem');
-	// const delete_button = document.querySelector('.deleteItem');
-	console.log(`delete_button: ${delete_button}`);
-	delete_button.addEventListener('click', (e) => {
-		console.log('e');
-		console.log(e);
-	});
-});
+	item.appendChild(name);
+	item.appendChild(deleteBtn);
 
-// console.log(item_arr.length);
-// if (item_arr.length > 0) {
-// 	console.log('IN');
-// 	const delete_button = document.querySelector('#1');
-// 	// const delete_button = document.querySelector('.deleteItem');
-// 	console.log(`delete_button: ${delete_button}`);
-// 	delete_button.addEventListener('click', (e) => {
-// 		console.log('e');
-// 		console.log(e);
-// 	});
-// }
+	itemRow.appendChild(item);
+	itemRow.appendChild(itemDivider);
+	return itemRow;
+}
+addBtn.addEventListener('click', () => onAdd());
+
+input.addEventListener('keypress', (e) => {
+	if (e.key === 'Enter') {
+		onAdd();
+	}
+});
